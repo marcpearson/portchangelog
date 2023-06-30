@@ -43,16 +43,21 @@ html = handle.read()
 
 soup = BeautifulSoup(html)
 
-maintable = soup.findAll('table')[1]
-table = maintable.findAll('table')[1]
+maintable = soup.findAll('table')[2]
+tables = maintable.findAll('table')
 
-if table.tr.td.string[:14] != 'Commit History':
-    table = maintable.findAll('table')[2]
+for table in tables:
+    if table.tr.td.string[:14] == 'Commit History':
+        commit_history_table = table
+        break
 
-rows = table.findAll('tr')[2:]
+rows = commit_history_table.findAll('tr')[2:]
 rows = rows[::-1]
 for tr in rows:
+    timestamp = None
     version = None
+    by = None
+    description = None
     cols = tr.findAll('td')
     
     timestamp = cols[0].find(text=True)
@@ -61,7 +66,9 @@ for tr in rows:
         version = cols[0].big.b.string
         
     by = cols[1].find(text=True)
-    description = ''.join(cols[2].findAll(text=True))
+    
+    if len(cols) == 3:
+        description = ''.join(cols[2].findAll(text=True))
     
     print timestamp , " " , version 
     print "By:", by
