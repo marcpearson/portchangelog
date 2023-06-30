@@ -1,0 +1,71 @@
+#!/usr/bin/env python
+ 
+from bs4 import BeautifulSoup
+from subprocess import Popen, PIPE
+import urllib
+import sys
+
+FS_PORTS_PATH = '/usr/ports/'
+
+#Validate if a port name was specified
+if (len(sys.argv) != 2):
+    sys.exit('Usage: portchangelog port_name')
+
+#Setting requested port name
+port_name=sys.argv[1]
+
+#Getting port's category
+pipe = Popen(['whereis', port_name], stdout=PIPE)
+output = pipe.communicate()[0].strip()
+paths = output.split(' ')
+
+freshport_path = None
+for p in paths:
+    if p[0:len(FS_PORTS_PATH)] == FS_PORTS_PATH:
+        freshport_path = p[len(FS_PORTS_PATH):]
+        break
+
+if freshport_path is None:
+    sys.exit('Unable to get category of port %s' % (port_name))
+
+#Set Freshports complete URL
+freshport_url = "http://www.freshports.org/%s" % (freshport_path)
+print "Fetching info at %s\n" % (freshport_url)
+
+#Open URL
+handle = urllib.urlopen(freshport_url)
+
+#Validate if we get a valid HTML port informations
+if handle.getcode() == 404:
+     sys.exit("The requested URL %s didn't not exist" % (freshport_url) )
+
+html = handle.read()
+
+soup = BeautifulSoup(html)
+
+maintable = soup.findAll('table')[1]
+table = maintable.findAll('table')[1]
+
+if table.tr.td.string[:14] != 'Commit History':
+    table = maintable.findAll('table')[2]
+
+rows = table.findAll('tr')[2:]
+rows = rows[::-1]
+for tr in rows:
+    version = None
+    cols = tr.findAll('td')
+    
+    timestamp = cols[0].find(text=True)
+
+    if cols[0].big:
+        version = cols[0].big.b.string
+        
+    by = cols[1].find(text=True)
+    description = ''.join(cols[2].findAll(text=True))
+    
+    print timestamp , " " , version 
+    print "By:", by
+    print
+    print description
+    print
+    print "-----------------------------------------------------"

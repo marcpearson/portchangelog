@@ -1,0 +1,24 @@
+NAME
+
+portchangelog
+
+
+DESCRIPTION
+
+Shell script to retrieve FreeBSD port's changelog from Freshports.org
+
+
+RUNNING DEPENDENCIES
+
+FreeBSD
+Ports in /usr/ports
+python 2.7
+beautifulsoup 4.x.y
+
+
+HOW TO USE
+
+Copy portchangelog file to /usr/local/bin then call it from command
+line like this :
+
+portchangelog port_name
