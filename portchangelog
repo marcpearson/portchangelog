@@ -41,9 +41,9 @@ if handle.getcode() == 404:
 
 html = handle.read()
 
-soup = BeautifulSoup(html)
+soup = BeautifulSoup(html, "html.parser")
 
-maintable = soup.findAll('table')[2]
+maintable = soup.findAll('table')[1]
 tables = maintable.findAll('table')
 
 for table in tables:
