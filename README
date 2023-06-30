@@ -12,8 +12,8 @@ RUNNING DEPENDENCIES
 
 FreeBSD
 Ports in /usr/ports
-python 2.7
-beautifulsoup 4.x.y
+python 3
+beautifulsoup4
 
 
 HOW TO USE

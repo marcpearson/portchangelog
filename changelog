@@ -1,3 +1,8 @@
+Release 2.0.0 (2023-06-30)
+
+- Upgrade to Python 3
+- Add requirements.txt
+
 Release 1.0.2 (2015-11-24)
 
 - FIXED Beautifulsoup userWarning about missing HTML.parser

@@ -1,8 +1,8 @@
-#!/usr/bin/env python
- 
+#!/usr/bin/env python3
+
 from bs4 import BeautifulSoup
 from subprocess import Popen, PIPE
-import urllib
+import urllib.request, urllib.parse, urllib.error
 import sys
 
 FS_PORTS_PATH = '/usr/ports/'
@@ -15,7 +15,7 @@ if (len(sys.argv) != 2):
 port_name=sys.argv[1]
 
 #Getting port's category
-pipe = Popen(['whereis', port_name], stdout=PIPE)
+pipe = Popen(['whereis', port_name], stdout=PIPE, encoding='utf8')
 output = pipe.communicate()[0].strip()
 paths = output.split(' ')
 
@@ -29,11 +29,11 @@ if freshport_path is None:
     sys.exit('Unable to get category of port %s' % (port_name))
 
 #Set Freshports complete URL
-freshport_url = "http://www.freshports.org/%s" % (freshport_path)
-print "Fetching info at %s\n" % (freshport_url)
+freshport_url = "https://www.freshports.org/%s" % (freshport_path)
+print("Fetching info at %s\n" % (freshport_url))
 
 #Open URL
-handle = urllib.urlopen(freshport_url)
+handle = urllib.request.urlopen(freshport_url)
 
 #Validate if we get a valid HTML port informations
 if handle.getcode() == 404:
@@ -43,13 +43,7 @@ html = handle.read()
 
 soup = BeautifulSoup(html, "html.parser")
 
-maintable = soup.findAll('table')[1]
-tables = maintable.findAll('table')
-
-for table in tables:
-    if table.tr.td.string[:14] == 'Commit History':
-        commit_history_table = table
-        break
+commit_history_table = soup.findAll('table', class_="commit-list")[0]
 
 rows = commit_history_table.findAll('tr')[2:]
 rows = rows[::-1]
@@ -59,20 +53,20 @@ for tr in rows:
     by = None
     description = None
     cols = tr.findAll('td')
-    
-    timestamp = cols[0].find(text=True)
 
-    if cols[0].big:
-        version = cols[0].big.b.string
-        
+    timestamp = cols[0].find(text=True, recursive=False)
+
+    if cols[0].span:
+        version = cols[0].span.string
+
     by = cols[1].find(text=True)
-    
+
     if len(cols) == 3:
         description = ''.join(cols[2].findAll(text=True))
-    
-    print timestamp , " " , version 
-    print "By:", by
-    print
-    print description
-    print
-    print "-----------------------------------------------------"
+
+    print(timestamp , " " , str(version or ''))
+    print("By:", by)
+    print()
+    print(description)
+    print()
+    print("-----------------------------------------------------")
